@@ -18,7 +18,8 @@ exports.create = (request, response) => {
     user
         .save(user)
         .then(data => {
-            response.send(data)
+            // response.send(data)
+            response.redirect('/add-user');
         })
         .catch(err => {
             response.status(500).send({
@@ -30,13 +31,35 @@ exports.create = (request, response) => {
 //read user
 
 exports.find = (request, response) => {
-    Userdb.find()
-        .then(user => {
-            response.send(user)
-        })
-        .catch(err => {
-            response.status(500).send({ message: err.message || "Error occured while retrieving the data" })
-        })
+    const id = request.query.id
+    if (id) {
+        Userdb.findById(id)
+            .then(data => {
+                if (!data) {
+                    response.status(404).send({
+                        message: "Cannot find the user with id " + id
+                    })
+                }
+                else {
+                    response.send(data)
+                }
+            })
+            .catch(err => {
+                response.status(500).send({
+                    message: `Error finding user with ${id}`
+                });
+            })
+    }
+    else {
+        Userdb.find()
+            .then(user => {
+                response.send(user)
+            })
+            .catch(err => {
+                response.status(500).send({ message: err.message || "Error occured while retrieving the data" })
+            })
+    }
+
 }
 
 // update user
